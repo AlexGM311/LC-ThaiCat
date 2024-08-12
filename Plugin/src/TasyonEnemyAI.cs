@@ -68,7 +68,7 @@ namespace TaysonEnemy
                 UnityEngine.Debug.LogError("No running sound effect provided!");
                 return;
             }
-            creatureSFX.PlayOneShot(Plugin.soundEffects["running"], 0.8f);
+            creatureSFX.PlayOneShot(Plugin.soundEffects["running"], 0.15f);
         }
         public void SFX_Purring()
         {
@@ -81,7 +81,7 @@ namespace TaysonEnemy
             {
                 return;
             }
-            creatureSFX.PlayOneShot(Plugin.soundEffects["purring"], 0.5f);
+            creatureSFX.PlayOneShot(Plugin.soundEffects["purring"], 0.2f);
             
         }
         #endregion
@@ -270,12 +270,27 @@ namespace TaysonEnemy
                 case (int)State.Rage:
                     agent.speed = 16f;
                     agent.angularSpeed = 240 * 2f;
-                    if (!TargetClosestPlayer()) // if no player is targetable, retreat
+                    agent.acceleration = 8 * 3f;
+                    playersInDoors = false;
+                    foreach (PlayerControllerB pcb in StartOfRound.Instance.allPlayerScripts)
+                    {
+                        if (pcb.isInsideFactory)
+                        {
+                            playersInDoors = true;
+                            break;
+                        }
+                    }
+                    if (!playersInDoors)
                     {
                         GoToSleep();
                         agent.angularSpeed = 240;
+                        agent.acceleration = 8f;
                     }
-                    playersInDoors = false;
+                    else
+                    {
+                        TargetClosestPlayer();
+                        movingTowardsTargetPlayer = true;
+                    }
                     if (creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name == "Idle")
                     {
                         DoAnimationClientRpc("Running.Begin");
@@ -384,13 +399,20 @@ namespace TaysonEnemy
             {
                 return;
             }
-            if (currentBehaviourStateIndex == (int)State.Attack || currentBehaviourStateIndex == (int)State.Rage || currentBehaviourStateIndex == (int)State.Patrol && creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Attack.1" && creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Attack.2")
+            if (currentBehaviourStateIndex == (int)State.Attack || currentBehaviourStateIndex == (int)State.Rage && creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Attack.1" && creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Attack.2")
             {
                 AttackPlayer();
             }
             base.OnCollideWithPlayer(other);
-            PlayerControllerB playerControllerB = MeetsStandardPlayerCollisionConditions(other, inKillAnimation);
             
+            PlayerControllerB playerControllerB = MeetsStandardPlayerCollisionConditions(other, inKillAnimation);
+            if (currentBehaviourStateIndex == (int)State.Patrol)
+            {
+                AttackPlayer();
+                SwitchToBehaviourClientRpc((int)State.Attack);
+                SetMovingTowardsTargetPlayer(playerControllerB);
+                attackCount = 0;
+            }
             if (playerControllerB != null)
             {
                 LogIfDebugBuild("Tayson enemy Collision with Player!");
@@ -526,6 +548,7 @@ namespace TaysonEnemy
 
         public override void HitEnemy(int force = 1, PlayerControllerB? playerWhoHit = null, bool playHitSFX = false, int hitID = -1)
         {
+            LogIfDebugBuild("Tayson was hit!");
             base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
             if(isEnemyDead){
                 return;
@@ -534,6 +557,7 @@ namespace TaysonEnemy
             if ((int)State.Rage != currentBehaviourStateIndex)
             {
                 SwitchToBehaviourClientRpc((int)State.Rage);
+                EndAnimation();
             }
             if (IsOwner) {
                 if (enemyHP <= 0 && !isEnemyDead) {
@@ -542,7 +566,8 @@ namespace TaysonEnemy
                     // so we don't need to call a death animation ourselves.
 
                     // We need to stop our search coroutine, because the game does not do that by default.
-                    StopCoroutine(searchCoroutine);
+                    if (searchCoroutine != null)
+                        StopCoroutine(searchCoroutine);
                     KillEnemyOnOwnerClient();
                 }
             }
@@ -551,14 +576,19 @@ namespace TaysonEnemy
         public void EndAnimation()
         {
             string[] clipName = creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            LogIfDebugBuild($"Clip name is {clipName[0]}");
+            if (clipName.Length == 2)
+            {
+                LogIfDebugBuild($"Clip postfix is {clipName[1]}");
+            }
             if (clipName.Length == 1)
             {
-                if (clipName[0] != "Idle")
+                if (clipName[0] != "idle")
                 {
                     DoAnimationClientRpc(clipName[0] + ".End");
                 }
             }
-            else if (clipName[0] != "Attack" && clipName[1] != "End")
+            else if (clipName[1] == "begin")
             {
                 executeAfterTimer(EndAnimation, 2.01f);
             }
