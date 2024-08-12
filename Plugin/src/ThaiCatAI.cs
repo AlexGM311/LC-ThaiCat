@@ -12,14 +12,14 @@ using System;
 using System.Linq;
 using UnityEngine.SearchService;
 
-namespace TaysonEnemy 
+namespace ThaiCat 
 {
-    // You may be wondering, how does the Example Enemy know it is from class TaysonEnemyAI?
+    // You may be wondering, how does the Example Enemy know it is from class ThaiCatAI?
     // Well, we give it a reference to to this class in the Unity project where we make the asset bundle.
     // Asset bundles cannot contain scripts, so our script lives here. It is important to get the
     // reference right, or else it will not find this file. See the guide for more information.
 
-    class TaysonEnemyAI : EnemyAI
+    class ThaiCatAI : EnemyAI
     {
         // We set these in our Asset Bundle, so we can disable warning CS0649:
         // Field 'field' is never assigned to, and will always have its default value 'value'

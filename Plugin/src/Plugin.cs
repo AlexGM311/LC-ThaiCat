@@ -4,11 +4,11 @@ using BepInEx;
 using LethalLib.Modules;
 using BepInEx.Logging;
 using System.IO;
-using TaysonEnemy.Configuration;
+using ThaiCat.Configuration;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace TaysonEnemy {
+namespace ThaiCat {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency(LethalLib.Plugin.ModGUID)] 
     public class Plugin : BaseUnityPlugin {
@@ -30,7 +30,7 @@ namespace TaysonEnemy {
             // You may want to rename your asset bundle from the AssetBundle Browser in order to avoid an issue with
             // asset bundle identifiers being the same between multiple bundles, allowing the loading of only one bundle from one mod.
             // In that case also remember to change the asset bundle copying code in the csproj.user file.
-            var bundleName = "taysonenemybundle";
+            var bundleName = "thaicatbundle";
             ModAssets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), bundleName));
             if (ModAssets == null) {
                 Logger.LogError($"Failed to load custom assets.");
@@ -38,21 +38,21 @@ namespace TaysonEnemy {
             }
             Logger.LogInfo("Loaded the bundle");
             // We load our assets from our asset bundle. Remember to rename them both here and in our Unity project.
-            var TaysonEnemy = ModAssets.LoadAsset<EnemyType>("TaysonEnemy");
-            var TaysonEnemyTN = ModAssets.LoadAsset<TerminalNode>("TaysonEnemyTN");
-            var TaysonEnemyTK = ModAssets.LoadAsset<TerminalKeyword>("TaysonEnemyTK");
+            var ThaiCat = ModAssets.LoadAsset<EnemyType>("ThaiCat");
+            var ThaiCatTN = ModAssets.LoadAsset<TerminalNode>("ThaiCatTN");
+            var ThaiCatTK = ModAssets.LoadAsset<TerminalKeyword>("ThaiCatTK");
             var assetNames = ModAssets.GetAllAssetNames();
             soundEffects  = new Dictionary<string, AudioClip>();
             soundEffects.Add("running", ModAssets.LoadAsset<AudioClip>("running.sfx"));
             soundEffects.Add("purring", ModAssets.LoadAsset<AudioClip>("purring.sfx"));
-            if (TaysonEnemy == null || TaysonEnemyTK == null || TaysonEnemyTN == null)
+            if (ThaiCat == null || ThaiCatTK == null || ThaiCatTN == null)
             {
                 Logger.LogError("Failed to load asset(s)");
-                if (TaysonEnemy == null)
+                if (ThaiCat == null)
                     Debug.LogError("Failed to load the model");
-                if (TaysonEnemyTK == null)
+                if (ThaiCatTK == null)
                     Debug.LogError("Failed to load the terminal keywords");
-                if (TaysonEnemyTN == null)
+                if (ThaiCatTN == null)
                     Debug.LogError("Failed to load the terminal node");
                 return;
             }
@@ -63,7 +63,7 @@ namespace TaysonEnemy {
     
             // Optionally, we can list which levels we want to add our enemy to, while also specifying the spawn weight for each.
             /*
-            var TaysonEnemyLevelRarities = new Dictionary<Levels.LevelTypes, int> {
+            var ThaiCatLevelRarities = new Dictionary<Levels.LevelTypes, int> {
                 {Levels.LevelTypes.ExperimentationLevel, 10},
                 {Levels.LevelTypes.AssuranceLevel, 40},
                 {Levels.LevelTypes.VowLevel, 20},
@@ -76,7 +76,7 @@ namespace TaysonEnemy {
                 {Levels.LevelTypes.Modded, 60},     // Affects values for modded moons that weren't specified
             };
             // We can also specify custom level rarities
-            var TaysonEnemyCustomLevelRarities = new Dictionary<string, int> {
+            var ThaiCatCustomLevelRarities = new Dictionary<string, int> {
                 {"EGyptLevel", 50},
                 {"46 Infernis", 69},    // Either LLL or LE(C) name can be used, LethalLib will handle both
             };
@@ -84,12 +84,12 @@ namespace TaysonEnemy {
 
             // Network Prefabs need to be registered. See https://docs-multiplayer.unity3d.com/netcode/current/basics/object-spawning/
             // LethalLib registers prefabs on GameNetworkManager.Start.
-            NetworkPrefabs.RegisterNetworkPrefab(TaysonEnemy.enemyPrefab);
+            NetworkPrefabs.RegisterNetworkPrefab(ThaiCat.enemyPrefab);
 
             // For different ways of registering your enemy, see https://github.com/EvaisaDev/LethalLib/blob/main/LethalLib/Modules/Enemies.cs
-            Enemies.RegisterEnemy(TaysonEnemy, BoundConfig.SpawnWeight.Value, Levels.LevelTypes.All, TaysonEnemyTN, TaysonEnemyTK);
+            Enemies.RegisterEnemy(ThaiCat, BoundConfig.SpawnWeight.Value, Levels.LevelTypes.All, ThaiCatTN, ThaiCatTK);
             // For using our rarity tables, we can use the following:
-            // Enemies.RegisterEnemy(TaysonEnemy, TaysonEnemyLevelRarities, TaysonEnemyCustomLevelRarities, TaysonEnemyTN, TaysonEnemyTK);
+            // Enemies.RegisterEnemy(ThaiCat, ThaiCatLevelRarities, ThaiCatCustomLevelRarities, ThaiCatTN, ThaiCatTK);
             
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }

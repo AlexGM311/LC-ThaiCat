@@ -3,7 +3,7 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 
-namespace TaysonEnemy.Configuration {
+namespace ThaiCat.Configuration {
     public class PluginConfig
     {
         // For more info on custom configs, see https://lethal.wiki/dev/intermediate/custom-configs
