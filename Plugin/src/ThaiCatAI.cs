@@ -255,6 +255,7 @@ namespace ThaiCat
                     if (lostLOSTimer > 10f)
                     {
                         SwitchToBehaviourClientRpc((int)State.Patrol);
+                        DoAnimationClientRpc("Running.Stop");
                     }
                     else if (lostLOSTimer > 3.5f)
                     {
@@ -557,7 +558,10 @@ namespace ThaiCat
             if ((int)State.Rage != currentBehaviourStateIndex)
             {
                 SwitchToBehaviourClientRpc((int)State.Rage);
-                EndAnimation();
+                if (creatureAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.name != "Running")
+                {
+                    EndAnimation();
+                }
             }
             if (IsOwner) {
                 if (enemyHP <= 0 && !isEnemyDead) {

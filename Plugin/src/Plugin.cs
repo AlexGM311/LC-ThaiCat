@@ -42,9 +42,11 @@ namespace ThaiCat {
             var ThaiCatTN = ModAssets.LoadAsset<TerminalNode>("ThaiCatTN");
             var ThaiCatTK = ModAssets.LoadAsset<TerminalKeyword>("ThaiCatTK");
             var assetNames = ModAssets.GetAllAssetNames();
-            soundEffects  = new Dictionary<string, AudioClip>();
-            soundEffects.Add("running", ModAssets.LoadAsset<AudioClip>("running.sfx"));
-            soundEffects.Add("purring", ModAssets.LoadAsset<AudioClip>("purring.sfx"));
+            soundEffects  = new Dictionary<string, AudioClip>
+            {
+                { "running", ModAssets.LoadAsset<AudioClip>("running.sfx") },
+                { "purring", ModAssets.LoadAsset<AudioClip>("purring.sfx") }
+            };
             if (ThaiCat == null || ThaiCatTK == null || ThaiCatTN == null)
             {
                 Logger.LogError("Failed to load asset(s)");
